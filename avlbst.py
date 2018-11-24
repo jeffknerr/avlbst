@@ -30,6 +30,45 @@ class AVLBST(object):
     """query tree to see if empty or not"""
     return self.size == 0
 
+  def printInOrder(self):
+    """in-order traversal...print each node as visited"""
+    self._printInOrder(self.root)
+
+  def _printInOrder(self, curr):
+    """private helper function to do in-order traversal"""
+    if curr == None:
+      return
+    else:
+      self._printInOrder(curr.getLeft())
+      print(curr)
+      self._printInOrder(curr.getRight())
+
+  def printPostOrder(self):
+    """post-order traversal...print each node as visited"""
+    self._printPostOrder(self.root)
+
+  def _printPostOrder(self, curr):
+    """private helper function to do post-order traversal"""
+    if curr == None:
+      return
+    else:
+      self._printPostOrder(curr.getLeft())
+      self._printPostOrder(curr.getRight())
+      print(curr)
+
+  def printPreOrder(self):
+    """pre-order traversal...print each node as visited"""
+    self._printPreOrder(self.root)
+
+  def _printPreOrder(self, curr):
+    """private helper function to do pre-order traversal"""
+    if curr == None:
+      return
+    else:
+      print(curr)
+      self._printPreOrder(curr.getLeft())
+      self._printPreOrder(curr.getRight())
+
   def insert(self,key,value):
     """add a new node to the tree"""
     if self.size == 0:
@@ -39,6 +78,18 @@ class AVLBST(object):
     else:
       self._insertInSubtree(self.root,key,value)
 
+  def _recalcHeight(self,curr):
+    """calculate/set height of given node"""
+    if curr.getLeft() == None:
+      lefth = -1
+    else:
+      lefth = curr.getLeft().getHeight()
+    if curr.getRight() == None:
+      righth = -1
+    else:
+      righth = curr.getRight().getHeight()
+    curr.setHeight(max(lefth,righth) + 1)
+
   def _insertInSubtree(self,curr,key,value):
     """private helper function: add new node to correct spot in subtree"""
     ckey = curr.getKey()
@@ -46,20 +97,22 @@ class AVLBST(object):
       # go left
       if curr.getLeft() == None:
         # insert here
-        newnode = AVLBSTNode(key,value)
+        newnode = AVLBSTNode(key,value,0)
         curr.setLeft(newnode)
         self.size += 1
       else:
         self._insertInSubtree(curr.getLeft(),key,value)
+      self._recalcHeight(curr)
     elif key > ckey:
       # go right
       if curr.getRight() == None:
         # insert here
-        newnode = AVLBSTNode(key,value)
+        newnode = AVLBSTNode(key,value,0)
         curr.setRight(newnode)
         self.size += 1
       else:
         self._insertInSubtree(curr.getRight(),key,value)
+      self._recalcHeight(curr)
     else:
       print("Error...duplicate key: %s" % str(key))
 
@@ -110,7 +163,7 @@ def main():
   """some simple test code"""
 
   #ABCDEFGHIJKLMNOPQRSTUVWXYZ
-  keys = list("MFTBIPX")
+  keys = list("MFTBIPXH")
   bst = AVLBST()
   print(bst)
   assert(bst.getSize()==0)
@@ -119,6 +172,8 @@ def main():
     v = randrange(101)
     bst.insert(k,v)
   print(bst)
+  #bst.printInOrder()
+  bst.printPreOrder()
   assert(len(bst)==len(keys))
   bst.writeDotFile("bst.dot")
 
