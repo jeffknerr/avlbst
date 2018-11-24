@@ -49,8 +49,10 @@ class AVLBSTNode(object):
     """get right pointer from node"""
     return self.right
 
-  # don't want to change/set the key, as that messes up the BST,
-  # so not providing a setKey(k) method
+  def setKey(self,key):
+    """change key stored in node"""
+    # need when moving nodes around...like remove(key)
+    self.key = key
   def setValue(self,value):
     """change value stored in node"""
     self.value = value

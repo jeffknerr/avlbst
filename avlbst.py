@@ -8,6 +8,7 @@ Fall 2018
 """
 
 from avlbstnode import *
+import sys
 
 class AVLBST(object):
 
@@ -29,6 +30,53 @@ class AVLBST(object):
   def isEmpty(self):  
     """query tree to see if empty or not"""
     return self.size == 0
+
+  def remove(self, key):
+    """look for key in BST, remove node if found"""
+    self.root = self._removeFromSubtree(self.root, key)
+
+  def _removeFromSubtree(self, curr, key):
+    """private helper function to remove node with key (if found)"""
+    if curr == None:
+      print("no such key (%s)...remove(key) call" % str(key))
+      return curr
+    elif key < curr.getKey():
+      curr.setLeft(self._removeFromSubtree(curr.getLeft(), key))
+      self._recalcHeight(curr)
+      return curr
+    elif key > curr.getKey():
+      curr.setRight(self._removeFromSubtree(curr.getRight(), key))
+      self._recalcHeight(curr)
+      return curr
+    else:
+      # found key....so need to delete this curr node
+      CL = curr.getLeft()
+      CR = curr.getRight()
+      if CL==None and CR==None:
+        # leaf node...easy
+        return None
+      elif CL==None:
+        # promote the right node
+        return CR
+      elif CR==None:
+        # promote the left node
+        return CL
+      else:
+        # find min of right subtree, swap and remove it
+        minright = self.getMinInSubtree(CR)
+        curr.setKey(minright.getKey())
+        curr.setValue(minright.getValue())
+        curr.setRight(self._removeFromSubtree(CR,minright.getKey()))
+        self._recalcHeight(curr)
+        return curr
+
+  def getMinInSubtree(self, curr):
+    """get node in subtree with smallest key"""
+    # since it's a BST, we want the left-most node
+    if curr.getLeft()==None:
+      return curr
+    else:
+      return self.getMinInSubtree(curr.getLeft())
 
   def printInOrder(self):
     """in-order traversal...print each node as visited"""
@@ -172,10 +220,13 @@ def main():
     v = randrange(101)
     bst.insert(k,v)
   print(bst)
-  #bst.printInOrder()
-  bst.printPreOrder()
+  bst.printInOrder()
+  #bst.printPreOrder()
   assert(len(bst)==len(keys))
   bst.writeDotFile("bst.dot")
+  print("testing remove...")
+  bst.remove("F")
+  bst.printInOrder()
 
 if __name__ == "__main__":
   main()
