@@ -174,7 +174,7 @@ class AVLBST(object):
     if self.root == None:
       ofl.write("\n")
     elif self.root.getLeft()==None and self.root.getRight()==None:
-      ofl.write("    %s;\n" % (str(self.root.getKey())))
+      ofl.write("    %s;\n" % (self.root.getDesc()))
     else:
       self._helperDot(self.root, ofl, nullcount)
     ofl.write("}\n")
@@ -183,25 +183,23 @@ class AVLBST(object):
   def _helperDot(self, curr, ofl, nullcount):
     """private helper function for writing out xdot file"""
     if curr.getLeft() != None:
-      ofl.write("   %s -> %s ;\n" % (str(curr.getKey()),
-                                     str(curr.getLeft().getKey())))
+      ofl.write("   %s -> %s ;\n" % (curr.getDesc(),curr.getLeft().getDesc()))
       nullcount = self._helperDot(curr.getLeft(), ofl, nullcount)
     else:
       nullcount += 1
-      self._nullDot(curr.getKey(), nullcount, ofl)
+      self._nullDot(curr.getDesc(), nullcount, ofl)
     if curr.getRight() != None:
-      ofl.write("   %s -> %s ;\n" % (str(curr.getKey()),
-                                     str(curr.getRight().getKey())))
+      ofl.write("   %s -> %s ;\n" % (curr.getDesc(),curr.getRight().getDesc()))
       nullcount = self._helperDot(curr.getRight(), ofl, nullcount)
     else:
       nullcount += 1
-      self._nullDot(curr.getKey(), nullcount, ofl)
+      self._nullDot(curr.getDesc(), nullcount, ofl)
     return nullcount
 
-  def _nullDot(self, key, nullcount, ofl):
+  def _nullDot(self, description, nullcount, ofl):
     """private helper function to write null nodes"""
     ofl.write("   null%d [shape=point];\n" % nullcount)
-    ofl.write("   %s -> null%d;\n" % (key,nullcount))
+    ofl.write("   %s -> null%d;\n" % (description,nullcount))
 
 # ---------------------------------------------- #
 
@@ -221,9 +219,9 @@ def main():
     bst.insert(k,v)
   print(bst)
   bst.printInOrder()
+  bst.writeDotFile("bst.dot")
   #bst.printPreOrder()
   assert(len(bst)==len(keys))
-  bst.writeDotFile("bst.dot")
   print("testing remove...")
   bst.remove("F")
   bst.printInOrder()

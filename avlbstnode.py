@@ -48,6 +48,10 @@ class AVLBSTNode(object):
   def getRight(self):  
     """get right pointer from node"""
     return self.right
+  def getDesc(self):
+    """get custom string describing node"""
+    s = '"%s(%s)"' % (str(self.key),str(self.height))
+    return s
 
   def setKey(self,key):
     """change key stored in node"""
@@ -80,6 +84,7 @@ def main():
   assert(n2.getHeight()==3)
   assert(n2.getLeft()==None)
   assert(n2.getRight().getHeight()==-1)
+  assert(n2.getDesc()=='"5(3)"')
 
 if __name__ == "__main__":
   main()
