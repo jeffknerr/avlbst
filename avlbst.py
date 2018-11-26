@@ -54,12 +54,15 @@ class AVLBST(object):
       CR = curr.getRight()
       if CL==None and CR==None:
         # leaf node...easy
+        self.size -= 1
         return None
       elif CL==None:
         # promote the right node
+        self.size -= 1
         return CR
       elif CR==None:
         # promote the left node
+        self.size -= 1
         return CL
       else:
         # find min of right subtree, swap and remove it
@@ -73,10 +76,121 @@ class AVLBST(object):
   def getMinInSubtree(self, curr):
     """get node in subtree with smallest key"""
     # since it's a BST, we want the left-most node
+    # (assumes BST is correct!)
     if curr.getLeft()==None:
       return curr
     else:
       return self.getMinInSubtree(curr.getLeft())
+
+  def getMaxInSubtree(self, curr):
+    """get node in subtree with largest key"""
+    # since it's a BST, we want the right-most node
+    # (assumes BST is correct!)
+    if curr.getRight()==None:
+      return curr
+    else:
+      return self.getMaxInSubtree(curr.getRight())
+
+  def findMax(self):
+    """find and return largest node/key in tree"""
+    return self._findMaxInSubtree(self.root)
+
+  def _findMaxInSubtree(self, curr):
+    """traverse the whole subtree, return node with largest key"""
+    if curr == None:
+      return None
+    else:
+      ckey = curr.getKey()
+      Lmax = self._findMaxInSubtree(curr.getLeft())
+      Rmax = self._findMaxInSubtree(curr.getRight())
+      if Lmax==None and Rmax==None:
+        return curr
+      elif Lmax==None:
+        if ckey > Rmax.getKey():
+          return curr
+        else:
+          return Rmax
+      elif Rmax==None:
+        if ckey > Lmax.getKey():
+          return curr
+        else:
+          return Lmax
+      else:
+        rkey = Rmax.getKey()
+        lkey = Lmax.getKey()
+        if ckey > rkey and ckey > lkey:
+          return curr
+        elif rkey > ckey and rkey > lkey:
+          return Rmax
+        else:
+          return Lmax
+
+  def _findMinInSubtree(self, curr):
+    """traverse the whole subtree, return node with smallest key"""
+    if curr == None:
+      return None
+    else:
+      ckey = curr.getKey()
+      Lmin = self._findMinInSubtree(curr.getLeft())
+      Rmin = self._findMinInSubtree(curr.getRight())
+      if Lmin==None and Rmin==None:
+        return curr
+      elif Lmin==None:
+        if ckey < Rmin.getKey():
+          return curr
+        else:
+          return Rmin
+      elif Rmin==None:
+        if ckey < Lmin.getKey():
+          return curr
+        else:
+          return Lmin
+      else:
+        rkey = Rmin.getKey()
+        lkey = Lmin.getKey()
+        if ckey < rkey and ckey < lkey:
+          return curr
+        elif rkey < ckey and rkey < lkey:
+          return Rmin
+        else:
+          return Lmin
+
+  def _countNodes(self, curr):
+    """return number of nodes from here down"""
+    if curr == None:
+      return 0
+    else:
+      return self._countNodes(curr.getLeft()) + self._countNodes(curr.getRight()) + 1
+
+  def _checkKeys(self, curr):
+    """check that keys are all in order for BST"""
+    if curr == None:
+      return True
+    else:
+      minRight = self._findMinInSubtree(curr.getRight())
+      maxLeft = self._findMaxInSubtree(curr.getLeft())
+      if minRight==None and maxLeft==None:
+        return True
+      elif minRight==None:
+        return curr.getKey() > maxLeft.getKey()
+      elif maxLeft==None:
+        return curr.getKey() < minRight.getKey()
+      else:
+        return maxLeft.getKey() < curr.getKey() and curr.getKey() < minRight.getKey()
+
+  def checkInvariants(self):
+    """check the BST to make sure it's valid"""
+    count = self._countNodes(self.root)
+    if count != self.size:
+      print("BST size incorrect!!!")
+      print("count = %d" % count)
+      print(" size = %d" % self.size)
+      return False
+    #self.root.setKey("Z")
+    if not self._checkKeys(self.root):
+      print("BST keys out of order!!!")
+      return False
+    return True
 
   def printInOrder(self):
     """in-order traversal...print each node as visited"""
@@ -225,6 +339,9 @@ def main():
   print("testing remove...")
   bst.remove("F")
   bst.printInOrder()
+  print("max node: ")
+  print(bst.findMax())
+  assert(bst.checkInvariants() == True)
 
 if __name__ == "__main__":
   main()
