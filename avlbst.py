@@ -318,6 +318,12 @@ class AVLBST(object):
 # ---------------------------------------------- #
 
 from random import randrange, choice
+from subprocess import call
+
+def display(fn):
+  """turn a dot file into a png and display it"""
+  call("dot -Tpng ./%s -O" % fn, shell=True)
+  call("display ./%s.png" % fn, shell=True)
 
 def main():
   """some simple test code"""
@@ -333,7 +339,9 @@ def main():
     bst.insert(k,v)
   print(bst)
   bst.printInOrder()
-  bst.writeDotFile("bst.dot")
+  fn = "bst.dot"
+  bst.writeDotFile(fn)
+  display(fn)
   #bst.printPreOrder()
   assert(len(bst)==len(keys))
   print("testing remove...")
@@ -342,6 +350,13 @@ def main():
   print("max node: ")
   print(bst.findMax())
   assert(bst.checkInvariants() == True)
+  keys = list("ADGLQUYZ")
+  for k in keys:
+    v = randrange(101)
+    print("adding %s-%d" % (k,v))
+    bst.insert(k,v)
+  bst.writeDotFile(fn)
+  display(fn)
 
 if __name__ == "__main__":
   main()
