@@ -95,6 +95,10 @@ class AVLBST(object):
     """find and return largest node/key in tree"""
     return self._findMaxInSubtree(self.root)
 
+  def findMin(self):
+    """find and return largest node/key in tree"""
+    return self._findMinInSubtree(self.root)
+
   def _findMaxInSubtree(self, curr):
     """traverse the whole subtree, return node with largest key"""
     if curr == None:
@@ -180,16 +184,21 @@ class AVLBST(object):
 
   def checkInvariants(self):
     """check the BST to make sure it's valid"""
+    # based on code from https://www.cs.swarthmore.edu/courses/CS35/F18/labs/07
+    # make sure size is correct
     count = self._countNodes(self.root)
     if count != self.size:
       print("BST size incorrect!!!")
-      print("count = %d" % count)
-      print(" size = %d" % self.size)
       return False
-    #self.root.setKey("Z")
+    # make sure max of left < key < min of right for all nodes.
+    # warning...I think this is an O(nlog(n)) algorithm, since for every node,
+    # you need to visit all nodes below (to find the min/max).
+    # for testing when not valid: 
+    # self.root.setKey("Z")
     if not self._checkKeys(self.root):
       print("BST keys out of order!!!")
       return False
+    # all good if we get here...
     return True
 
   def printInOrder(self):
@@ -328,35 +337,56 @@ def display(fn):
 def main():
   """some simple test code"""
 
-  #ABCDEFGHIJKLMNOPQRSTUVWXYZ
-  keys = list("MFTBIPXH")
+  # make BST
   bst = AVLBST()
   print(bst)
   assert(bst.getSize()==0)
   assert(bst.isEmpty()==True)
+
+  # insert tests
+  #ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  keys = list("MFTBIPXH")
+  length = len(keys)
   for k in keys:
     v = randrange(101)
     bst.insert(k,v)
+  assert(len(bst)==length)
+  assert(bst.checkInvariants() == True)
+  assert(bst.isEmpty()==False)
   print(bst)
   bst.printInOrder()
+  #bst.printPreOrder()
+  #bst.printPostOrder()
   fn = "bst.dot"
   bst.writeDotFile(fn)
   display(fn)
-  #bst.printPreOrder()
-  assert(len(bst)==len(keys))
+  
+  # remove tests
   print("testing remove...")
   bst.remove("F")
+  length -= 1
   bst.printInOrder()
-  print("max node: ")
-  print(bst.findMax())
+  assert(len(bst)==length)
   assert(bst.checkInvariants() == True)
-  keys = list("ADGLQUYZ")
-  for k in keys:
+
+  # min/max tests
+  minLetter = min(keys)
+  maxLetter = max(keys)
+  assert(bst.findMax().getKey()==maxLetter)
+  assert(bst.findMin().getKey()==minLetter)
+
+  # more insert tests
+  morekeys = list("ADGLQUYZ")
+  for k in morekeys:
     v = randrange(101)
     print("adding %s-%d" % (k,v))
     bst.insert(k,v)
   bst.writeDotFile(fn)
   display(fn)
+  length += len(morekeys)
+  assert(len(bst)==length)
+  assert(bst.checkInvariants() == True)
+  assert(bst.isEmpty()==False)
 
 if __name__ == "__main__":
   main()
