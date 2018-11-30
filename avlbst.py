@@ -30,6 +30,65 @@ class AVLBST(object):
   def isEmpty(self):  
     """query tree to see if empty or not"""
     return self.size == 0
+ 
+  # based on info from the wikipedia page:
+  # https://en.wikipedia.org/wiki/AVL_tree
+  # the 4 cases:
+  # RR: Z is right child of X, Z is right-heavy
+  # LL: Z is left child of X, Z is left-heavy
+  # RL: Z is right child of X, Z is left-heavy
+  # LR: Z is left child of X, Z is right-heavy
+  # first two are handled by "simple" single rotations
+  # next two are handled by double rotations
+
+  def _leftRotate(self, X, Z):
+    """left-rotate, so Z becomes root, X becomes child of Z"""
+    t23 = Z.getLeft()
+    X.setRight(t23)
+    Z.setLeft(X)
+    # need to recalcHeights???
+
+  def _rightRotate(self, X, Z):
+    """right-rotate, so Z becomes root, X becomes child of Z"""
+    t23 = Z.getRight()
+    X.setLeft(t23)
+    Z.setRight(X)
+    # need to recalcHeights???
+
+  def _rightLeftRotate(self, X, Z):
+    """double rotate: first right, then left"""
+    Y = Z.getLeft()
+    self._rightRotate(Z, Y)
+    X.setRight(Z)
+    self._leftRotate(X, Y)
+    # need to recalcHeights???
+
+  def _leftRightRotate(self, X, Z):
+    """double rotate: first left, then right"""
+    Y = Z.getRight()
+    self._leftRotate(Z, Y)
+    X.setLeft(Z)
+    self._rightRotate(X, Y)
+    # need to recalcHeights???
+
+  def _rebalance(self, curr):
+    """given a node in the tree, check if we need to rebalance"""
+    # based on code from https://www.cs.swarthmore.edu/courses/CS35/F18/labs/07
+    if curr.getRight() == None or curr.getLeft() == None:
+      print("Error: _rebalance called on node without 2 children!!")
+      return
+    delta = curr.getRight().getHeight() - curr.getLeft().getHeight()
+    if (delta < -1):
+      # left height too big
+      if curr.getLeft().getLeft().getHeight() < curr.getLeft().getRight().getHeight():
+        curr.setLeft(self._leftRotate(curr.getLeft()))
+      curr = self._rightRotate(curr)
+    elif (delta > 1):
+      # right height too big
+      if curr.getRight().getLeft().getHeight() > curr.getRight().getRight().getHeight():
+        curr.setRight(self._rightRotate(curr.getRight()))
+      curr = self._leftRotate(curr)
+    return
 
   def remove(self, key):
     """look for key in BST, remove node if found"""
