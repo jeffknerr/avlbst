@@ -47,6 +47,8 @@ class AVLBST(object):
     X.setRight(t23)
     Z.setLeft(X)
     # need to recalcHeights???
+    self._recalcHeight(X)
+    return Z
 
   def _rightRotate(self, X, Z):
     """right-rotate, so Z becomes root, X becomes child of Z"""
@@ -54,41 +56,73 @@ class AVLBST(object):
     X.setLeft(t23)
     Z.setRight(X)
     # need to recalcHeights???
+    self._recalcHeight(X)
+    return Z
+#   if X.getKey() == self.root.getKey():
+#     # new root node!!!!
+#     self.root = Z
 
   def _rightLeftRotate(self, X, Z):
     """double rotate: first right, then left"""
     Y = Z.getLeft()
     self._rightRotate(Z, Y)
-    X.setRight(Z)
+    X.setRight(Y)
     self._leftRotate(X, Y)
     # need to recalcHeights???
+    self._recalcHeight(Y)
+    self._recalcHeight(X)
+    self._recalcHeight(Z)
+    return Y
 
   def _leftRightRotate(self, X, Z):
     """double rotate: first left, then right"""
     Y = Z.getRight()
     self._leftRotate(Z, Y)
-    X.setLeft(Z)
+    X.setLeft(Y)
     self._rightRotate(X, Y)
     # need to recalcHeights???
+    self._recalcHeight(Y)
+    self._recalcHeight(X)
+    self._recalcHeight(Z)
+    return Y
 
   def _rebalance(self, curr):
     """given a node in the tree, check if we need to rebalance"""
     # based on code from https://www.cs.swarthmore.edu/courses/CS35/F18/labs/07
-    if curr.getRight() == None or curr.getLeft() == None:
-      print("Error: _rebalance called on node without 2 children!!")
-      return
-    delta = curr.getRight().getHeight() - curr.getLeft().getHeight()
+    LSH = self._getSubTreeHeight(curr.getLeft())   # left subtree height
+    RSH = self._getSubTreeHeight(curr.getRight())  # right subtree height
+    delta = RSH - LSH
+    print("delta: %d" % (delta))
     if (delta < -1):
       # left height too big
-      if curr.getLeft().getLeft().getHeight() < curr.getLeft().getRight().getHeight():
-        curr.setLeft(self._leftRotate(curr.getLeft()))
-      curr = self._rightRotate(curr)
+      LLH = self._getSubTreeHeight(curr.getLeft().getLeft())  # left-left-height
+      LRH = self._getSubTreeHeight(curr.getLeft().getRight()) # left-right-height
+      if LLH < LRH:
+        curr = self._leftRightRotate(curr, curr.getLeft())
+      else:
+        curr = self._rightRotate(curr, curr.getLeft())
     elif (delta > 1):
       # right height too big
-      if curr.getRight().getLeft().getHeight() > curr.getRight().getRight().getHeight():
-        curr.setRight(self._rightRotate(curr.getRight()))
-      curr = self._leftRotate(curr)
-    return
+      RRH = self._getSubTreeHeight(curr.getRight().getRight()) # right-right-height
+      RLH = self._getSubTreeHeight(curr.getRight().getLeft())  # right-left-height
+      print("RRH: %d    RLH: %d" % (RRH,RLH))
+      if RLH > RRH:
+        print("calling RLrotate")
+        curr = self._rightLeftRotate(curr, curr.getRight())
+      else:
+        print("calling Leftrotate on %s-%s" % (curr.getKey(),curr.getRight().getKey()))
+        print(curr)
+        print(curr.getRight())
+        curr = self._leftRotate(curr, curr.getRight())
+        print(curr)
+    return curr
+
+  def _getSubTreeHeight(self, curr):
+    """given a node, get height of node's subtree"""
+    if curr == None:
+      return 0
+    else:
+      return curr.getHeight() + 1
 
   def remove(self, key):
     """look for key in BST, remove node if found"""
@@ -299,15 +333,6 @@ class AVLBST(object):
       self._printPreOrder(curr.getLeft())
       self._printPreOrder(curr.getRight())
 
-  def insert(self,key,value):
-    """add a new node to the tree"""
-    if self.size == 0:
-      newnode = AVLBSTNode(key,value,0)
-      self.root = newnode
-      self.size += 1
-    else:
-      self._insertInSubtree(self.root,key,value)
-
   def _recalcHeight(self,curr):
     """calculate/set height of given node"""
     if curr.getLeft() == None:
@@ -320,6 +345,15 @@ class AVLBST(object):
       righth = curr.getRight().getHeight()
     curr.setHeight(max(lefth,righth) + 1)
 
+  def insert(self,key,value):
+    """add a new node to the tree"""
+    if self.size == 0:
+      newnode = AVLBSTNode(key,value,0)
+      self.root = newnode
+      self.size += 1
+    else:
+      self.root = self._insertInSubtree(self.root,key,value)
+
   def _insertInSubtree(self,curr,key,value):
     """private helper function: add new node to correct spot in subtree"""
     ckey = curr.getKey()
@@ -331,8 +365,10 @@ class AVLBST(object):
         curr.setLeft(newnode)
         self.size += 1
       else:
-        self._insertInSubtree(curr.getLeft(),key,value)
+        curr.setLeft(self._insertInSubtree(curr.getLeft(),key,value))
       self._recalcHeight(curr)
+      curr = self._rebalance(curr)
+      return curr
     elif key > ckey:
       # go right
       if curr.getRight() == None:
@@ -341,8 +377,10 @@ class AVLBST(object):
         curr.setRight(newnode)
         self.size += 1
       else:
-        self._insertInSubtree(curr.getRight(),key,value)
+        curr.setRight(self._insertInSubtree(curr.getRight(),key,value))
       self._recalcHeight(curr)
+      curr = self._rebalance(curr)
+      return curr
     else:
       print("Error...duplicate key: %s" % str(key))
 
