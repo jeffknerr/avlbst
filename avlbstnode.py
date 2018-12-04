@@ -28,7 +28,7 @@ class AVLBSTNode(object):
   def __str__(self):
     """goal is to be readable"""
     # https://stackoverflow.com/questions/1436703/difference-between-str-and-repr
-    return "key: %4s,  val: %10s,  height: %3d" % (self.key,
+    return "key: %4s,  val: %8s,  height: %3d" % (self.key,
                                                    self.value, 
                                                    self.height)
 

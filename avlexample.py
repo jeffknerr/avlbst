@@ -7,7 +7,7 @@ Fall 2018
 
 import avlbst
 from subprocess import call
-from random import randrange
+from random import randrange, shuffle
 
 def main():
 
@@ -15,15 +15,12 @@ def main():
   bst = avlbst.AVLBST()
 
   # insert some key-value pairs
-  keys = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-  #keys.reverse()
-  line = "-"*40
+  keys = list("ABCDEFGHIJKLMNO")
   for key in keys:
     val = randrange(100)
-    print("%s\ninserting %s-%d" % (line,key,val))
+    print("inserting %s-%d" % (key,val))
     bst.insert(key,val)
-    # print/show the tree as we build it
-    print(bst)
+    assert(bst.checkInvariants()==True)
     bst.printInOrder()
     fn = "bst.dot"
     bst.writeDotFile(fn)

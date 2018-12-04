@@ -13,7 +13,7 @@ import sys
 class AVLBST(object):
 
   def __init__(self):
-    """avlbst constructor: creates initially empty tree"""
+    """avlbst constructor: creates initially empty binary search tree"""
     self.size = 0
     self.root = None
 
@@ -23,106 +23,53 @@ class AVLBST(object):
     return "Size: %d, Root: %s" % (self.size, self.root)
 
   def getSize(self):    
-    """get size of tree"""
+    """return size of tree"""
     return self.size
   def __len__(self):
+    """return size of tree"""
     return self.size
   def isEmpty(self):  
-    """query tree to see if empty or not"""
+    """return True if tree is empty, False if not"""
     return self.size == 0
- 
-  # based on info from the wikipedia page:
-  # https://en.wikipedia.org/wiki/AVL_tree
-  # the 4 cases:
-  # RR: Z is right child of X, Z is right-heavy
-  # LL: Z is left child of X, Z is left-heavy
-  # RL: Z is right child of X, Z is left-heavy
-  # LR: Z is left child of X, Z is right-heavy
-  # first two are handled by "simple" single rotations
-  # next two are handled by double rotations
 
-  def _leftRotate(self, X, Z):
-    """left-rotate, so Z becomes root, X becomes child of Z"""
-    t23 = Z.getLeft()
-    X.setRight(t23)
-    Z.setLeft(X)
-    # need to recalcHeights???
-    self._recalcHeight(X)
-    return Z
-
-  def _rightRotate(self, X, Z):
-    """right-rotate, so Z becomes root, X becomes child of Z"""
-    t23 = Z.getRight()
-    X.setLeft(t23)
-    Z.setRight(X)
-    # need to recalcHeights???
-    self._recalcHeight(X)
-    return Z
-#   if X.getKey() == self.root.getKey():
-#     # new root node!!!!
-#     self.root = Z
-
-  def _rightLeftRotate(self, X, Z):
-    """double rotate: first right, then left"""
-    Y = Z.getLeft()
-    self._rightRotate(Z, Y)
-    X.setRight(Y)
-    self._leftRotate(X, Y)
-    # need to recalcHeights???
-    self._recalcHeight(Y)
-    self._recalcHeight(X)
-    self._recalcHeight(Z)
-    return Y
-
-  def _leftRightRotate(self, X, Z):
-    """double rotate: first left, then right"""
-    Y = Z.getRight()
-    self._leftRotate(Z, Y)
-    X.setLeft(Y)
-    self._rightRotate(X, Y)
-    # need to recalcHeights???
-    self._recalcHeight(Y)
-    self._recalcHeight(X)
-    self._recalcHeight(Z)
-    return Y
-
-  def _rebalance(self, curr):
-    """given a node in the tree, check if we need to rebalance"""
-    # based on code from https://www.cs.swarthmore.edu/courses/CS35/F18/labs/07
-    LSH = self._getSubTreeHeight(curr.getLeft())   # left subtree height
-    RSH = self._getSubTreeHeight(curr.getRight())  # right subtree height
-    delta = RSH - LSH
-    print("delta: %d" % (delta))
-    if (delta < -1):
-      # left height too big
-      LLH = self._getSubTreeHeight(curr.getLeft().getLeft())  # left-left-height
-      LRH = self._getSubTreeHeight(curr.getLeft().getRight()) # left-right-height
-      if LLH < LRH:
-        curr = self._leftRightRotate(curr, curr.getLeft())
-      else:
-        curr = self._rightRotate(curr, curr.getLeft())
-    elif (delta > 1):
-      # right height too big
-      RRH = self._getSubTreeHeight(curr.getRight().getRight()) # right-right-height
-      RLH = self._getSubTreeHeight(curr.getRight().getLeft())  # right-left-height
-      print("RRH: %d    RLH: %d" % (RRH,RLH))
-      if RLH > RRH:
-        print("calling RLrotate")
-        curr = self._rightLeftRotate(curr, curr.getRight())
-      else:
-        print("calling Leftrotate on %s-%s" % (curr.getKey(),curr.getRight().getKey()))
-        print(curr)
-        print(curr.getRight())
-        curr = self._leftRotate(curr, curr.getRight())
-        print(curr)
-    return curr
-
-  def _getSubTreeHeight(self, curr):
-    """given a node, get height of node's subtree"""
-    if curr == None:
-      return 0
+  def insert(self, key, value):
+    """add a new node (key-value pair) to the tree"""
+    if self.size == 0:
+      newnode = AVLBSTNode(key, value, 0)
+      self.root = newnode
+      self.size += 1
     else:
-      return curr.getHeight() + 1
+      self.root = self._insertInSubtree(self.root, key, value)
+
+  def _insertInSubtree(self, curr, key, value):
+    """private helper function: add new node to correct spot in subtree"""
+    ckey = curr.getKey()
+    if key < ckey:
+      # go left
+      if curr.getLeft() == None:
+        # insert here
+        newnode = AVLBSTNode(key,value,0)
+        curr.setLeft(newnode)
+        self.size += 1
+      else:
+        curr.setLeft(self._insertInSubtree(curr.getLeft(), key, value))
+      self._recalcHeight(curr)
+      curr = self._rebalance(curr)
+      return curr
+    elif key > ckey:
+      # go right
+      if curr.getRight() == None:
+        # insert here
+        newnode = AVLBSTNode(key,value,0)
+        curr.setRight(newnode)
+        self.size += 1
+      else:
+        curr.setRight(self._insertInSubtree(curr.getRight(), key, value))
+      self._recalcHeight(curr)
+      curr = self._rebalance(curr)
+      return curr
+    else:
+      print("Error...duplicate key: %s" % str(key))
 
   def remove(self, key):
     """look for key in BST, remove node if found"""
@@ -136,10 +83,12 @@ class AVLBST(object):
     elif key < curr.getKey():
       curr.setLeft(self._removeFromSubtree(curr.getLeft(), key))
       self._recalcHeight(curr)
+      curr = self._rebalance(curr)
       return curr
     elif key > curr.getKey():
       curr.setRight(self._removeFromSubtree(curr.getRight(), key))
       self._recalcHeight(curr)
+      curr = self._rebalance(curr)
       return curr
     else:
       # found key....so need to delete this curr node
@@ -159,37 +108,121 @@ class AVLBST(object):
         return CL
       else:
         # find min of right subtree, swap and remove it
-        minright = self.getMinInSubtree(CR)
+        minright = self._getMinInSubtree(CR)
         curr.setKey(minright.getKey())
         curr.setValue(minright.getValue())
         curr.setRight(self._removeFromSubtree(CR,minright.getKey()))
         self._recalcHeight(curr)
+        curr = self._rebalance(curr)
         return curr
 
-  def getMinInSubtree(self, curr):
-    """get node in subtree with smallest key"""
+  def _getMinInSubtree(self, curr):
+    """get left-most node (should have smallest key)"""
     # since it's a BST, we want the left-most node
     # (assumes BST is correct!)
     if curr.getLeft()==None:
       return curr
     else:
-      return self.getMinInSubtree(curr.getLeft())
+      return self._getMinInSubtree(curr.getLeft())
 
-  def getMaxInSubtree(self, curr):
-    """get node in subtree with largest key"""
+  def _getMaxInSubtree(self, curr):
+    """get right-most node (should have largest key)"""
     # since it's a BST, we want the right-most node
     # (assumes BST is correct!)
     if curr.getRight()==None:
       return curr
     else:
-      return self.getMaxInSubtree(curr.getRight())
+      return self._getMaxInSubtree(curr.getRight())
+
+  # AVL rebalance based on info from the wikipedia page:
+  # https://en.wikipedia.org/wiki/AVL_tree
+  # the 4 cases:
+  # RR: Z is right child of X, Z is right-heavy
+  # LL: Z is left  child of X, Z is left-heavy
+  # RL: Z is right child of X, Z is left-heavy
+  # LR: Z is left  child of X, Z is right-heavy
+  # first two are handled by "simple" single rotations (left, right)
+  # next two are handled by double rotations (rightLeft, leftRight)
+
+  def _leftRotate(self, X, Z):
+    """left-rotate, so Z becomes root, X becomes left-child of Z"""
+    # this is the RR case above
+    t23 = Z.getLeft()   # see wikipedia page for X,Z,t23
+    X.setRight(t23)
+    Z.setLeft(X)
+    self._recalcHeight(X)
+    return Z
+
+  def _rightRotate(self, X, Z):
+    """right-rotate, so Z becomes root, X becomes right-child of Z"""
+    # this is the LL case above
+    t23 = Z.getRight()
+    X.setLeft(t23)
+    Z.setRight(X)
+    self._recalcHeight(X)
+    return Z
+
+  def _rightLeftRotate(self, X, Z):
+    """double rotate: first right, then left"""
+    # this is the RL case above
+    Y = Z.getLeft()                  #   X           Y
+    self._rightRotate(Z, Y)          #     Z   --> X   Z
+    X.setRight(Y)                    #   Y
+    self._leftRotate(X, Y)
+    self._recalcHeight(Y)
+    self._recalcHeight(X)
+    self._recalcHeight(Z)
+    return Y
+
+  def _leftRightRotate(self, X, Z):
+    """double rotate: first left, then right"""
+    # this is the LR case above
+    Y = Z.getRight()                 #   X          Y
+    self._leftRotate(Z, Y)           # Z     -->  Z   X
+    X.setLeft(Y)                     #   Y
+    self._rightRotate(X, Y)
+    self._recalcHeight(Y)
+    self._recalcHeight(X)
+    self._recalcHeight(Z)
+    return Y
+
+  def _getSubTreeHeight(self, curr):
+    """given a node, get height of node's subtree"""
+    if curr == None:
+      return 0
+    else:
+      return curr.getHeight() + 1
+
+  def _rebalance(self, curr):
+    """given a node in the tree, check if we need to rebalance"""
+    # based on code from https://www.cs.swarthmore.edu/courses/CS35/F18/labs/07
+    LSH = self._getSubTreeHeight(curr.getLeft())   # left subtree height
+    RSH = self._getSubTreeHeight(curr.getRight())  # right subtree height
+    delta = RSH - LSH
+    if (delta < -1):
+      # left height too big
+      LLH = self._getSubTreeHeight(curr.getLeft().getLeft())  # left-left-height
+      LRH = self._getSubTreeHeight(curr.getLeft().getRight()) # left-right-height
+      if LLH < LRH:
+        curr = self._leftRightRotate(curr, curr.getLeft())
+      else:
+        curr = self._rightRotate(curr, curr.getLeft())
+    elif (delta > 1):
+      # right height too big
+      RRH = self._getSubTreeHeight(curr.getRight().getRight()) # right-right-height
+      RLH = self._getSubTreeHeight(curr.getRight().getLeft())  # right-left-height
+      if RLH > RRH:
+        curr = self._rightLeftRotate(curr, curr.getRight())
+      else:
+        curr = self._leftRotate(curr, curr.getRight())
+    return curr
 
   def findMax(self):
-    """find and return largest node/key in tree"""
+    """find and return node with largest key in tree"""
     return self._findMaxInSubtree(self.root)
 
   def findMin(self):
-    """find and return largest node/key in tree"""
+    """find and return node with smallest key in tree"""
     return self._findMinInSubtree(self.root)
 
   def _findMaxInSubtree(self, curr):
@@ -333,7 +366,7 @@ class AVLBST(object):
       self._printPreOrder(curr.getLeft())
       self._printPreOrder(curr.getRight())
 
-  def _recalcHeight(self,curr):
+  def _recalcHeight(self, curr):
     """calculate/set height of given node"""
     if curr.getLeft() == None:
       lefth = -1
@@ -345,48 +378,10 @@ class AVLBST(object):
       righth = curr.getRight().getHeight()
     curr.setHeight(max(lefth,righth) + 1)
 
-  def insert(self,key,value):
-    """add a new node to the tree"""
-    if self.size == 0:
-      newnode = AVLBSTNode(key,value,0)
-      self.root = newnode
-      self.size += 1
-    else:
-      self.root = self._insertInSubtree(self.root,key,value)
-
-  def _insertInSubtree(self,curr,key,value):
-    """private helper function: add new node to correct spot in subtree"""
-    ckey = curr.getKey()
-    if key < ckey:
-      # go left
-      if curr.getLeft() == None:
-        # insert here
-        newnode = AVLBSTNode(key,value,0)
-        curr.setLeft(newnode)
-        self.size += 1
-      else:
-        curr.setLeft(self._insertInSubtree(curr.getLeft(),key,value))
-      self._recalcHeight(curr)
-      curr = self._rebalance(curr)
-      return curr
-    elif key > ckey:
-      # go right
-      if curr.getRight() == None:
-        # insert here
-        newnode = AVLBSTNode(key,value,0)
-        curr.setRight(newnode)
-        self.size += 1
-      else:
-        curr.setRight(self._insertInSubtree(curr.getRight(),key,value))
-      self._recalcHeight(curr)
-      curr = self._rebalance(curr)
-      return curr
-    else:
-      print("Error...duplicate key: %s" % str(key))
+# https://eli.thegreenplace.net/2009/11/23/visualizing-binary-trees-with-graphviz
 
   def writeDotFile(self, filename):
-    """make a xdot file, so we can actually *see* the tree"""
-    # https://eli.thegreenplace.net/2009/11/23/visualizing-binary-trees-with-graphviz
+    """make xdot file, so we can actually *see* the tree"""
     nullcount = 0
     ofl = open(filename,"w")
     ofl.write("digraph BST {\n")

@@ -1,6 +1,6 @@
 import unittest
 from avlbst import *
-from random import randrange, choice
+from random import randrange, choice, shuffle
 
 class TestAVLBSTMethods(unittest.TestCase):
 
@@ -17,12 +17,14 @@ class TestAVLBSTMethods(unittest.TestCase):
   def test_empty(self):
     self.assertEqual(self.bst.getSize(), 0)
     self.assertEqual(self.bst.isEmpty(), True)
+    self.assertEqual(self.bst.checkInvariants(), True)
 
   def test_inserts(self):
     for i in range(len(self.keys)):
       k = self.keys[i]
       v = self.values[i]
       self.bst.insert(k,v)
+      self.assertEqual(self.bst.checkInvariants(), True)
     self.assertEqual(self.bst.getSize(), self.length)
     self.assertEqual(self.bst.isEmpty(), False)
 
@@ -31,6 +33,26 @@ class TestAVLBSTMethods(unittest.TestCase):
       k = self.keys[i]
       v = self.values[i]
       self.bst.insert(k,v)
+    length = self.length
+    for i in range(self.length):
+      key = choice(self.keys)
+      self.bst.remove(key)
+      self.assertEqual(self.bst.checkInvariants(), True)
+      length -= 1
+      self.assertEqual(self.bst.getSize(), length)
+      self.keys.remove(key)
+    self.assertEqual(self.bst.isEmpty(), True)
+
+  def test_differentOrder(self):
+    shuffle(self.keys)
+    for i in range(len(self.keys)):
+      k = self.keys[i]
+      v = self.values[i]
+      self.bst.insert(k,v)
+      self.assertEqual(self.bst.checkInvariants(), True)
+    self.assertEqual(self.bst.getSize(), self.length)
+    self.assertEqual(self.bst.isEmpty(), False)
+    shuffle(self.keys)
     length = self.length
     for i in range(self.length):
       key = choice(self.keys)
