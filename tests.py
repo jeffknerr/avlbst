@@ -9,6 +9,7 @@ class TestAVLBSTMethods(unittest.TestCase):
     self.bst = AVLBST()
     self.assertEqual(self.bst.getSize(), 0)
     self.keys = list("MFTBIPXHADGLQUYZ")
+    self.keys = list("ABCDEFGHIJKLMNOPQ")
     self.length = len(self.keys)
     self.values = []
     for i in range(len(self.keys)):
@@ -74,6 +75,35 @@ class TestAVLBSTMethods(unittest.TestCase):
     self.assertEqual(self.bst.findMax().getValue(), self.values[imax])
     imin = self.keys.index(min(self.keys))
     self.assertEqual(self.bst.findMin().getValue(), self.values[imin])
+
+
+  def test_traversals(self):
+    globalL = []
+    def getnodekey(node):
+      """key from given node"""
+      globalL.append(node.getKey())
+    for i in range(len(self.keys)):
+      k = self.keys[i]
+      v = self.values[i]
+      self.bst.insert(k,v)
+    # in order test
+    self.bst.traverseInOrder(getnodekey)
+    lstr = "".join(globalL)
+    self.keys.sort()
+    kstr = "".join(self.keys)
+    self.assertEqual(lstr,kstr)
+    # pre order test
+    globalL.clear()
+    self.bst.traversePreOrder(getnodekey)
+    lstr = "".join(globalL)
+    prestr = "HDBACFEGLJIKNMPOQ"
+    self.assertEqual(lstr,prestr)
+    # post order test
+    globalL.clear()
+    self.bst.traversePostOrder(getnodekey)
+    lstr = "".join(globalL)
+    poststr = "ACBEGFDIKJMOQPNLH"
+    self.assertEqual(lstr,poststr)
 
 ####################################################
 

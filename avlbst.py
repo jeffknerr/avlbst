@@ -327,44 +327,53 @@ class AVLBST(object):
     # all good if we get here...
     return True
 
-  def printInOrder(self):
-    """in-order traversal...print each node as visited"""
-    self._printInOrder(self.root)
+  def traverseInOrder(self, f):
+    """in-order traversal: apply function f(node) to each node"""
+    if callable(f):
+      self._traverseInOrder(self.root, f)
+    else:
+      print("traverseInOrder(f) error: f must be a callable function")
 
-  def _printInOrder(self, curr):
-    """private helper function to do in-order traversal"""
+  def _traverseInOrder(self, curr, f):
+    """private helper function to apply f during in-order traversal"""
     if curr == None:
       return
     else:
-      self._printInOrder(curr.getLeft())
-      print(curr)
-      self._printInOrder(curr.getRight())
+      self._traverseInOrder(curr.getLeft(), f)
+      f(curr)
+      self._traverseInOrder(curr.getRight(), f)
 
-  def printPostOrder(self):
-    """post-order traversal...print each node as visited"""
-    self._printPostOrder(self.root)
+  def traversePreOrder(self, f):
+    """pre-order traversal: apply function f(node) to each node"""
+    if callable(f):
+      self._traversePreOrder(self.root, f)
+    else:
+      print("traversePreOrder(f) error: f must be a callable function")
 
-  def _printPostOrder(self, curr):
-    """private helper function to do post-order traversal"""
+  def _traversePreOrder(self, curr, f):
+    """private helper function to apply f during pre-order traversal"""
     if curr == None:
       return
     else:
-      self._printPostOrder(curr.getLeft())
-      self._printPostOrder(curr.getRight())
-      print(curr)
+      f(curr)
+      self._traversePreOrder(curr.getLeft(), f)
+      self._traversePreOrder(curr.getRight(), f)
 
-  def printPreOrder(self):
-    """pre-order traversal...print each node as visited"""
-    self._printPreOrder(self.root)
+  def traversePostOrder(self, f):
+    """post-order traversal: apply function f(node) to each node"""
+    if callable(f):
+      self._traversePostOrder(self.root, f)
+    else:
+      print("traversePostOrder(f) error: f must be a callable function")
 
-  def _printPreOrder(self, curr):
-    """private helper function to do pre-order traversal"""
+  def _traversePostOrder(self, curr, f):
+    """private helper function to apply f during post-order traversal"""
     if curr == None:
       return
     else:
-      print(curr)
-      self._printPreOrder(curr.getLeft())
-      self._printPreOrder(curr.getRight())
+      self._traversePostOrder(curr.getLeft(), f)
+      self._traversePostOrder(curr.getRight(), f)
+      f(curr)
 
   def _recalcHeight(self, curr):
     """calculate/set height of given node"""
@@ -426,59 +435,32 @@ def display(fn):
   call("dot -Tpng ./%s -O" % fn, shell=True)
   call("display ./%s.png" % fn, shell=True)
 
+def nodeprint(node):
+  """given a node, print the node"""
+  print(node)
+
 def main():
   """some simple test code"""
 
   # make BST
   bst = AVLBST()
-  print(bst)
   assert(bst.getSize()==0)
   assert(bst.isEmpty()==True)
 
   # insert tests
-  #ABCDEFGHIJKLMNOPQRSTUVWXYZ
-  keys = list("MFTBIPXH")
+  keys = list("ABCDEFG")
   length = len(keys)
-  for k in keys:
-    v = randrange(101)
-    bst.insert(k,v)
+  val = 10
+  for key in keys:
+    bst.insert(key,val)
+    val += 10
   assert(len(bst)==length)
   assert(bst.checkInvariants() == True)
   assert(bst.isEmpty()==False)
-  print(bst)
-  bst.printInOrder()
-  #bst.printPreOrder()
-  #bst.printPostOrder()
+  bst.traverseInOrder(nodeprint)
   fn = "bst.dot"
   bst.writeDotFile(fn)
   display(fn)
   
-  # remove tests
-  print("testing remove...")
-  bst.remove("F")
-  length -= 1
-  bst.printInOrder()
-  assert(len(bst)==length)
-  assert(bst.checkInvariants() == True)
-
-  # min/max tests
-  minLetter = min(keys)
-  maxLetter = max(keys)
-  assert(bst.findMax().getKey()==maxLetter)
-  assert(bst.findMin().getKey()==minLetter)
-
-  # more insert tests
-  morekeys = list("ADGLQUYZ")
-  for k in morekeys:
-    v = randrange(101)
-    print("adding %s-%d" % (k,v))
-    bst.insert(k,v)
-  bst.writeDotFile(fn)
-  display(fn)
-  length += len(morekeys)
-  assert(len(bst)==length)
-  assert(bst.checkInvariants() == True)
-  assert(bst.isEmpty()==False)
-
 if __name__ == "__main__":
   main()
