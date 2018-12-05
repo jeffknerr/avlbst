@@ -71,6 +71,7 @@ class AVLBST(object):
       return curr
     else:
       print("insert() error: trying to insert duplicate key (%s)" % str(key))
+      # TODO: should use raise() here???
       return curr
 
   def remove(self, key):
@@ -250,17 +251,17 @@ class AVLBST(object):
     RSH = self._getSubTreeHeight(curr.getRight())  # right subtree height
     delta = RSH - LSH
     if (delta < -1):
-      # left height too big
-      LLH = self._getSubTreeHeight(curr.getLeft().getLeft())  # left-left-height
-      LRH = self._getSubTreeHeight(curr.getLeft().getRight()) # left-right-height
+      # left height too big; LLH=left's left height, LRH=left's right height
+      LLH = self._getSubTreeHeight(curr.getLeft().getLeft()) 
+      LRH = self._getSubTreeHeight(curr.getLeft().getRight())
       if LLH < LRH:
         curr = self._leftRightRotate(curr, curr.getLeft())
       else:
         curr = self._rightRotate(curr, curr.getLeft())
     elif (delta > 1):
-      # right height too big
-      RRH = self._getSubTreeHeight(curr.getRight().getRight()) # right-right-height
-      RLH = self._getSubTreeHeight(curr.getRight().getLeft())  # right-left-height
+      # right height too big; RRH=right's right height, RLH=right's left height
+      RRH = self._getSubTreeHeight(curr.getRight().getRight())
+      RLH = self._getSubTreeHeight(curr.getRight().getLeft())
       if RLH > RRH:
         curr = self._rightLeftRotate(curr, curr.getRight())
       else:
@@ -340,7 +341,8 @@ class AVLBST(object):
     if curr == None:
       return 0
     else:
-      return self._countNodes(curr.getLeft()) + self._countNodes(curr.getRight()) + 1
+      return self._countNodes(curr.getLeft()) + \
+             self._countNodes(curr.getRight()) + 1
 
   def _checkKeys(self, curr):
     """check that keys are all in order for BST"""
@@ -356,7 +358,8 @@ class AVLBST(object):
       elif maxLeft==None:
         return curr.getKey() < minRight.getKey()
       else:
-        return maxLeft.getKey() < curr.getKey() and curr.getKey() < minRight.getKey()
+        return maxLeft.getKey() < curr.getKey() and \
+                  curr.getKey() < minRight.getKey()
 
   def checkInvariants(self):
     """check the BST to make sure it's valid"""
@@ -453,7 +456,7 @@ class AVLBST(object):
       righth = curr.getRight().getHeight()
     curr.setHeight(max(lefth,righth) + 1)
 
-# https://eli.thegreenplace.net/2009/11/23/visualizing-binary-trees-with-graphviz
+#https://eli.thegreenplace.net/2009/11/23/visualizing-binary-trees-with-graphviz
 
   def writeDotFile(self, filename):
     """make xdot file, so we can actually *see* the tree"""

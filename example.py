@@ -8,8 +8,12 @@ Fall 2018
 import avlbst
 from subprocess import call
 
-def main():
+def printkey(node):
+  """function passed to traverseInOrder"""
+  # change the print to display whatever you want
+  print("key = %d" % node.getKey())
 
+def main():
   # make an empty BST
   bst = avlbst.AVLBST()
 
@@ -23,12 +27,12 @@ def main():
 
   # print/show the tree
   print(bst)
-  bst.printInOrder()
-  fn = "bst.dot"
-  bst.writeDotFile(fn)
+  bst.traverseInOrder(printkey)
 
   # if you have graphviz (dot) and ImageMagick (display) 
-  # installed, try these:
+  # installed, try this:
+  fn = "bst.dot"
+  bst.writeDotFile(fn)
   call("dot -Tpng ./%s -O" % fn, shell=True)
   call("display ./%s.png" % fn, shell=True)
 
