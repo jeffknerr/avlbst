@@ -127,6 +127,53 @@ class TestAVLBSTMethods(unittest.TestCase):
     poststr = "ACBEGFDIKJMOQPNLH"
     self.assertEqual(lstr,poststr)
 
+  def test_contains(self):
+    for i in range(len(self.keys)):
+      k = self.keys[i]
+      v = self.values[i]
+      self.bst.insert(k,v)
+    for i in range(len(self.keys)):
+      k = self.keys[i]
+      self.assertEqual(self.bst.contains(k), True)
+    self.assertEqual(self.bst.contains("".join(self.keys)), False)
+
+  def test_update(self):
+    for i in range(len(self.keys)):
+      k = self.keys[i]
+      v = self.values[i]
+      self.bst.insert(k,v)
+    for i in range(len(self.keys)):
+      k = self.keys[i]
+      self.bst.update(k,"hello")
+    self.assertEqual(self.bst.checkInvariants(), True)
+    self.assertEqual(self.bst.getSize(), len(self.keys))
+    output = io.StringIO()
+    sys.stdout = output
+    key = "supercalifragilistic"
+    self.bst.update(key,"hello")
+    emsg = "update() error: no such node with key (%s) to update." % str(key)
+    self.assertEqual(output.getvalue().strip('\n'), emsg)
+    self.assertEqual(self.bst.checkInvariants(), True)
+    self.assertEqual(self.bst.getSize(), len(self.keys))
+
+  def test_get(self):
+    for i in range(len(self.keys)):
+      k = self.keys[i]
+      v = self.values[i]
+      self.bst.insert(k,v)
+    for i in range(len(self.keys)):
+      k = self.keys[i]
+      self.assertEqual(self.bst.get(k), self.values[i])
+    output = io.StringIO()
+    sys.stdout = output
+    key = "supercalifragilistic"
+    result = self.bst.get(key)
+    self.assertEqual(result, None)
+    emsg = "get() error: no such node with key (%s) to get." % str(key)
+    self.assertEqual(output.getvalue().strip('\n'), emsg)
+    self.assertEqual(self.bst.checkInvariants(), True)
+    self.assertEqual(self.bst.getSize(), len(self.keys))
+
 ####################################################
 
 if __name__ == '__main__':

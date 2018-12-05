@@ -117,6 +117,38 @@ class AVLBST(object):
         curr = self._rebalance(curr)
         return curr
 
+  def get(self, key):
+    """find node with key, return it's value"""
+    node = self._find(self.root, key)
+    if node == None:
+      print("get() error: no such node with key (%s) to get." % str(key))
+      return None
+    else:
+      return node.getValue()
+
+  def update(self, key, value):
+    """find node with key, update it's value"""
+    node = self._find(self.root, key)
+    if node == None:
+      print("update() error: no such node with key (%s) to update." % str(key))
+    else:
+      node.setValue(value)
+
+  def contains(self, key):
+    """return True if key in tree, False if not"""
+    return self._find(self.root, key) != None
+
+  def _find(self, curr, key):
+    """private helper function to find node with key"""
+    if curr == None:
+      return None
+    elif key < curr.getKey():
+      return self._find(curr.getLeft(), key)
+    elif key > curr.getKey():
+      return self._find(curr.getRight(), key)
+    else:
+      return curr
+
   def _getMinInSubtree(self, curr):
     """get left-most node (should have smallest key)"""
     # since it's a BST, we want the left-most node
@@ -453,7 +485,6 @@ def main():
   assert(bst.isEmpty()==True)
 
   # insert tests
-  bst.insert("C",5)
   keys = list("ABCDEFG")
   length = len(keys)
   val = 10
@@ -467,6 +498,8 @@ def main():
   fn = "bst.dot"
   bst.writeDotFile(fn)
   display(fn)
+  bst.update("Z", 555)
+  bst.traverseInOrder(nodeprint)
   
 if __name__ == "__main__":
   main()
