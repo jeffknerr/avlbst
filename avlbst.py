@@ -9,6 +9,7 @@ Fall 2018
 
 from avlbstnode import *
 import sys
+import queue
 
 class AVLBST(object):
 
@@ -148,6 +149,22 @@ class AVLBST(object):
       return self._find(curr.getRight(), key)
     else:
       return curr
+
+  def getKeys(self):
+    """return list of all keys, using inorder traversal"""
+    keylist = []
+    def getnodekey(node):
+      keylist.append(node.getKey())
+    self.traverseInOrder(getnodekey)
+    return keylist
+
+  def getItems(self):
+    """return list of all (key,val) tuples, using inorder traversal"""
+    itemlist = []
+    def getnodeitem(node):
+      itemlist.append((node.getKey(),node.getValue()))
+    self.traverseInOrder(getnodeitem)
+    return itemlist
 
   def _getMinInSubtree(self, curr):
     """get left-most node (should have smallest key)"""
@@ -408,6 +425,22 @@ class AVLBST(object):
       self._traversePostOrder(curr.getRight(), f)
       f(curr)
 
+  def traverseLevelOrder(self):
+    """return level-by-level order list of (key,value) pairs"""
+    pairs = []
+    # use queue to store nodes in correct order
+    q = queue.Queue()   
+    if self.root != None:
+      q.put(self.root)
+      while not q.empty():
+        curr = q.get()
+        pairs.append((curr.getKey(), curr.getValue()))
+        if curr.getLeft() != None:
+          q.put(curr.getLeft())
+        if curr.getRight() != None:
+          q.put(curr.getRight())
+    return pairs
+
   def _recalcHeight(self, curr):
     """calculate/set height of given node"""
     if curr.getLeft() == None:
@@ -498,8 +531,6 @@ def main():
   fn = "bst.dot"
   bst.writeDotFile(fn)
   display(fn)
-  bst.update("Z", 555)
-  bst.traverseInOrder(nodeprint)
   
 if __name__ == "__main__":
   main()

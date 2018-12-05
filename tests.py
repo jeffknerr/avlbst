@@ -8,9 +8,7 @@ class TestAVLBSTMethods(unittest.TestCase):
     """create empty avlbst"""
     self.bst = AVLBST()
     self.assertEqual(self.bst.getSize(), 0)
-    self.keys = list("MFTBIPXHADGLQUYZ")
     self.keys = list("ABCDEFGHIJKLMNOPQ")
-    self.length = len(self.keys)
     self.values = []
     for i in range(len(self.keys)):
       self.values.append(randrange(100))
@@ -26,7 +24,7 @@ class TestAVLBSTMethods(unittest.TestCase):
       v = self.values[i]
       self.bst.insert(k,v)
       self.assertEqual(self.bst.checkInvariants(), True)
-    self.assertEqual(self.bst.getSize(), self.length)
+    self.assertEqual(self.bst.getSize(), len(self.keys))
     self.assertEqual(self.bst.isEmpty(), False)
 
   def test_removes(self):
@@ -34,8 +32,8 @@ class TestAVLBSTMethods(unittest.TestCase):
       k = self.keys[i]
       v = self.values[i]
       self.bst.insert(k,v)
-    length = self.length
-    for i in range(self.length):
+    length = len(self.keys)
+    for i in range(length):
       key = choice(self.keys)
       self.bst.remove(key)
       self.assertEqual(self.bst.checkInvariants(), True)
@@ -51,11 +49,11 @@ class TestAVLBSTMethods(unittest.TestCase):
       v = self.values[i]
       self.bst.insert(k,v)
       self.assertEqual(self.bst.checkInvariants(), True)
-    self.assertEqual(self.bst.getSize(), self.length)
+    self.assertEqual(self.bst.getSize(), len(self.keys))
     self.assertEqual(self.bst.isEmpty(), False)
     shuffle(self.keys)
-    length = self.length
-    for i in range(self.length):
+    length = len(self.keys)
+    for i in range(length):
       key = choice(self.keys)
       self.bst.remove(key)
       self.assertEqual(self.bst.checkInvariants(), True)
@@ -173,6 +171,45 @@ class TestAVLBSTMethods(unittest.TestCase):
     self.assertEqual(output.getvalue().strip('\n'), emsg)
     self.assertEqual(self.bst.checkInvariants(), True)
     self.assertEqual(self.bst.getSize(), len(self.keys))
+
+  def test_getkeys(self):
+    for i in range(len(self.keys)):
+      k = self.keys[i]
+      v = self.values[i]
+      self.bst.insert(k,v)
+    klist = self.bst.getKeys()
+    self.assertEqual(len(klist), len(self.keys))
+    for i in range(len(self.keys)):
+      self.assertEqual(klist[i], self.keys[i])
+    self.assertEqual(self.bst.checkInvariants(), True)
+    self.assertEqual(len(self.bst), len(self.keys))
+
+  def test_getitems(self):
+    for i in range(len(self.keys)):
+      k = self.keys[i]
+      v = self.values[i]
+      self.bst.insert(k,v)
+    ilist = self.bst.getItems()  # item list of (key,val) tuples
+    self.assertEqual(len(ilist), len(self.keys))
+    for i in range(len(self.keys)):
+      self.assertEqual(ilist[i][0], self.keys[i])
+      self.assertEqual(ilist[i][1], self.values[i])
+    self.assertEqual(self.bst.checkInvariants(), True)
+    self.assertEqual(len(self.bst), len(self.keys))
+
+  def test_levelordertraversal(self):
+    keys = self.keys[0:7]  # just A->G
+    for i in range(len(keys)):
+      k = self.keys[i]
+      v = self.values[i]
+      self.bst.insert(k,v)
+    ilist = self.bst.traverseLevelOrder()  # item list of (key,val) tuples
+    self.assertEqual(len(ilist), len(keys))
+    levelorder = list("DBFACEG")
+    for i in range(len(keys)):
+      self.assertEqual(ilist[i][0], levelorder[i])
+    self.assertEqual(self.bst.checkInvariants(), True)
+    self.assertEqual(len(self.bst), len(keys))
 
 ####################################################
 
