@@ -29,19 +29,19 @@ rebalancing is at most one or two rotations.
 
 ## before and after rebalancing
 
-Here are some images produced from the `writeDotFile()` method. 
+Here are some images produced from the `writeDotFile()` method.
 The first image shows the BST with nodes `A` through `K` added:
 
-![tree before node L added][rebalanceBefore.png]
+![tree before node L added](rebalanceBefore.png)
 
 Each node in the image shows the key (a letter) and the *height* of the node.
 
-If we add node `L` to the above tree, then the height of D's right 
+If we add node `L` to the above tree, then the height of D's right
 subtree will be 4, and it's left subtree height will be 2. This triggers
 the AVL rebalancing, which is a simple *left-rotation* of nodes `D` and
 `H`. Here's how the tree looks after the insertion and rebalancing:
 
-![tree after node L added][rebalanceBefore.png]
+![tree after node L added](rebalanceBefore.png)
 
 
 ---
