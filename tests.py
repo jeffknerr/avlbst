@@ -1,4 +1,4 @@
-import unittest
+import unittest, io
 from avlbst import *
 from random import randrange, choice, shuffle
 
@@ -76,6 +76,28 @@ class TestAVLBSTMethods(unittest.TestCase):
     imin = self.keys.index(min(self.keys))
     self.assertEqual(self.bst.findMin().getValue(), self.values[imin])
 
+  def test_insertduplicate(self):
+    for i in range(len(self.keys)):
+      k = self.keys[i]
+      v = self.values[i]
+      self.bst.insert(k,v)
+    output = io.StringIO()
+    sys.stdout = output
+    self.bst.insert(k,v)
+    emsg = "insert() error: trying to insert duplicate key (%s)" % str(k)
+    self.assertEqual(output.getvalue().strip('\n'), emsg)
+    self.assertEqual(self.bst.checkInvariants(), True)
+    self.assertEqual(self.bst.getSize(), len(self.keys))
+
+  def test_removenonexistent(self):
+    output = io.StringIO()
+    sys.stdout = output
+    key = "supercalifragilistic"
+    self.bst.remove(key)
+    emsg = "remove() error: no such key (%s) to remove." % str(key)
+    self.assertEqual(output.getvalue().strip('\n'), emsg)
+    self.assertEqual(self.bst.checkInvariants(), True)
+    self.assertEqual(self.bst.getSize(), 0)
 
   def test_traversals(self):
     globalL = []

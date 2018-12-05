@@ -69,7 +69,8 @@ class AVLBST(object):
       curr = self._rebalance(curr)
       return curr
     else:
-      print("Error...duplicate key: %s" % str(key))
+      print("insert() error: trying to insert duplicate key (%s)" % str(key))
+      return curr
 
   def remove(self, key):
     """look for key in BST, remove node if found"""
@@ -78,7 +79,7 @@ class AVLBST(object):
   def _removeFromSubtree(self, curr, key):
     """private helper function to remove node with key (if found)"""
     if curr == None:
-      print("no such key (%s)...remove(key) call" % str(key))
+      print("remove() error: no such key (%s) to remove." % str(key))
       return curr
     elif key < curr.getKey():
       curr.setLeft(self._removeFromSubtree(curr.getLeft(), key))
@@ -392,7 +393,11 @@ class AVLBST(object):
   def writeDotFile(self, filename):
     """make xdot file, so we can actually *see* the tree"""
     nullcount = 0
-    ofl = open(filename,"w")
+    try:
+      ofl = open(filename,"w")
+    except:
+      print("writeDotFile() unable to open file (%s)...exiting now." % filename)
+      sys.exit(1)
     ofl.write("digraph BST {\n")
     ofl.write("   node [fontname=\"Arial\"];\n")
     if self.root == None:
@@ -448,6 +453,7 @@ def main():
   assert(bst.isEmpty()==True)
 
   # insert tests
+  bst.insert("C",5)
   keys = list("ABCDEFG")
   length = len(keys)
   val = 10
