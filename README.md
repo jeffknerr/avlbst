@@ -1,5 +1,6 @@
 # avlbst
-[Adelson-Velsky and Landis](https://en.wikipedia.org/wiki/AVL_tree) (AVL) Binary Search Tree (BST) in python
+[Adelson-Velsky and Landis](https://en.wikipedia.org/wiki/AVL_tree) (AVL) Binary Search Tree (BST) in *python*
+
 
 For a Binary Search Tree (not an AVL BST) with `N` nodes,
 best case (balanced) height is `log(N)`, and worst case (linear/not
@@ -60,3 +61,6 @@ Useful Resources:
     git remote show origin
 
 -->
+---
+
+Last Modified: Wed Dec 12 10:28:11 EST 2018
